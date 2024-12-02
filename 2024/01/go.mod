@@ -1,3 +1,3 @@
-module gitlab.com/wgraham800/aoc23
+module github.com/wgraham-strava/advent-of-code
 
-go 1.22.2
+go 1.23.0
