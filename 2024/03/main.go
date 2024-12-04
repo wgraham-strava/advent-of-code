@@ -23,13 +23,11 @@ func part1() int {
 	defer file.Close()
 	lineScanner := bufio.NewScanner(file)
 
-	// Read and print each line
 	for lineScanner.Scan() {
 		line := lineScanner.Text()
 		matches := rg.FindAllString(line, -1)
 
 		for _, match := range matches {
-			// fmt.Println(match)
 			ans += do_multiply(match)
 		}
 	}
@@ -45,13 +43,10 @@ func do_multiply(s string) int {
 }
 
 func part2() int {
-	var pattern string = `mul\(\d{1,3},\d{1,3}\)`
-	var do_pattern string = `do\(\)`
-	var dont_pattern string = `don't\(\)`
+	var pattern string = `mul\(\d{1,3},\d{1,3}\)|do\(\)|don't\(\)`
 	var rg *regexp.Regexp = regexp.MustCompile(pattern)
-	var rg_do *regexp.Regexp = regexp.MustCompile(do_pattern)
-	var rg_dont *regexp.Regexp = regexp.MustCompile(dont_pattern)
 	var ans int = 0
+	var noop = false
 
 	file, err := os.Open("input.txt")
 	if err != nil {
@@ -60,25 +55,22 @@ func part2() int {
 	defer file.Close()
 	lineScanner := bufio.NewScanner(file)
 
-	// Read and print each line
+	var text string
 	for lineScanner.Scan() {
-		line := lineScanner.Text()
-		fmt.Println("Line = ", line)
-		matches := rg.FindAllStringIndex(line, -1)
-		_ = matches
-		do := rg_do.FindAllIndex([]byte(line), -1)
-		dont := rg_dont.FindAllIndex([]byte(line), -1)
-
-		fmt.Printf("matches = %v\n", matches)
-		fmt.Printf("dos = %v\n", do)
-		fmt.Printf("donts = %v\n", dont)
-
-		fmt.Printf("First match = %s\n", line[matches[0][0]:matches[0][1]])
+		text += lineScanner.Text()
 	}
+	matches := rg.FindAllString(text, -1)
+	_ = matches
 
-	// build list of "good ranges"
-	// for each match, check to see if it is in a good range
-	// if good, mult and add
+	for _, match := range matches {
+		if match == "don't()" {
+			noop = true
+		} else if match == "do()" {
+			noop = false
+		} else if strings.Contains(match, "mul") && !noop {
+			ans += do_multiply(match)
+		}
+	}
 
 	return ans
 }
